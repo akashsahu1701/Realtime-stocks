@@ -1,37 +1,30 @@
-import React, { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setSelectedStock } from "@/store/stockSlice";
+import React from "react";
 
-const StockModal = ({
-  isOpen,
-  onClose,
-  onSelect,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (symbol: string) => void;
-}) => {
-  const [symbol, setSymbol] = useState("");
-
-  const handleSubmit = () => {
-    onSelect(symbol);
-    onClose();
+const StockSelect = () => {
+  const dispatch = useAppDispatch();
+  const symbol = useAppSelector((state) => state.stocks.selectedStock);
+  const setSymbol = (symbol: "BTC" | "ETH" | "USDT" | "BNB" | "SOL") => {
+    dispatch(setSelectedStock(symbol));
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <h2>Select Stock/Crypto</h2>
-        <input
-          type="text"
-          value={symbol}
-          onChange={(e) => setSymbol(e.target.value)}
-        />
-        <button onClick={handleSubmit}>Select</button>
-        <button onClick={onClose}>Close</button>
-      </div>
+    <div className="flex ">
+      <div>Choose a stock:</div>
+      <select
+        className="text-black ml-2 border-rounded"
+        value={symbol}
+        onChange={(e) => setSymbol(e.target.value)}
+      >
+        <option value="BTC">BTC</option>
+        <option value="ETH">ETH</option>
+        <option value="USDT">USDT</option>
+        <option value="BNB">BNB</option>
+        <option value="SOL">SOL</option>
+      </select>
     </div>
   );
 };
 
-export default StockModal;
+export default StockSelect;

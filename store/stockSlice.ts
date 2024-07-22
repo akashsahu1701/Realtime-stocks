@@ -1,35 +1,46 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import { RootState } from "./store";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+interface Stock {
+  name: string;
+  symbol: string;
+  price: number;
+  currency: string;
+  timestamp: string;
+}
 
 interface StockState {
-  stocks: any[];
+  selectedStock: "BTC" | "ETH" | "USDT" | "BNB" | "SOL";
+  stocks: Stock[];
 }
 
 const initialState: StockState = {
+  selectedStock: "BTC",
   stocks: [],
 };
-
-export const fetchStockData = createAsyncThunk(
-  "stocks/fetchStockData",
-  async (symbol: string) => {
-    const response = await axios.get(
-      `http://localhost:5000/api/stocks/${symbol}`
-    );
-    return response.data;
-  }
-);
 
 const stockSlice = createSlice({
   name: "stocks",
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addCase(fetchStockData.fulfilled, (state, action) => {
+  reducers: {
+    setStocks(state, action: PayloadAction<Stock[]>) {
+      const stocks = action.payload.filter(
+        (stock) => stock.symbol === state.selectedStock
+      );
+      state.stocks = [...stocks, ...state.stocks].slice(0, 20);
+    },
+    setStocksData(state, action: PayloadAction<any>) {
       state.stocks = action.payload;
-    });
+    },
+    setSelectedStock(
+      state,
+      action: PayloadAction<"BTC" | "ETH" | "USDT" | "BNB" | "SOL">
+    ) {
+      state.selectedStock = action.payload;
+    },
   },
 });
 
-export const selectStocks = (state: RootState) => state.stocks.stocks;
+export const { setStocks, setSelectedStock, setStocksData } =
+  stockSlice.actions;
+
 export default stockSlice.reducer;
